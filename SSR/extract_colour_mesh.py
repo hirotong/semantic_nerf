@@ -1,3 +1,5 @@
+import sys
+sys.path.append('.')
 import os
 from collections import defaultdict
 import torch
@@ -34,7 +36,8 @@ def render_fn(trainer, rays, chunk):
             trainer.render_rays(rays[i:i+chunk])
 
         for k, v in rendered_ray_chunks.items():
-            results[k] += [v.cpu()]
+            if not k in ['raw_fine', 'raw_coarse', 'acc_coarse', 'acc_fine', 'depth_coarse', 'depth_fine']:
+                results[k] += [v.detach().cpu()]
 
     for k, v in results.items():
         results[k] = torch.cat(v, 0)
@@ -240,7 +243,7 @@ def train():
     # provide ray directions as input
     rays = rays.cuda()
     with torch.no_grad():
-        chunk=4096
+        chunk=80*1024
         # chunk=80*1024
         results = render_fn(ssr_trainer, rays, chunk)
 

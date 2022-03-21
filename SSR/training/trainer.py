@@ -866,7 +866,7 @@ class SSRTrainer(object):
             sampled_rays, sampled_gt_rgb, sampled_gt_depth, sampled_gt_semantic, sematic_available = sampled_data
         else:
             sampled_rays, sampled_gt_rgb = sampled_data
-                    
+            
         output_dict = self.render_rays(sampled_rays)
 
         rgb_coarse = output_dict["rgb_coarse"]  # N_rays x 3

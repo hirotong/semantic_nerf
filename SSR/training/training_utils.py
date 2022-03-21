@@ -12,8 +12,12 @@ def batchify_rays(render_fn, rays_flat, chunk=1024 * 32):
             if k not in all_ret:
                 all_ret[k] = []
             all_ret[k].append(ret[k])
-
-    all_ret = {k: torch.cat(all_ret[k], 0) for k in all_ret}
+    
+    # save gpu memory
+    if not all_ret['rgb_coarse'][0].requires_grad:
+        all_ret = {k: torch.cat(list(map(lambda x: x.detach().cpu(), all_ret[k])), 0) for k in all_ret}
+    else:
+        all_ret = {k: torch.cat(all_ret[k], 0) for k in all_ret}
     return all_ret
 
 

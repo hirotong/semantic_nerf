@@ -83,7 +83,7 @@ def train():
         total_num = 900
         step = 5
         train_ids = list(range(0, total_num, step))
-        test_ids = [x+step//2 for x in train_ids]  
+        test_ids = [x+step//2 for x in train_ids[:20]]  
         #add ids to config for later saving.
         config["experiment"]["train_ids"] = train_ids
         config["experiment"]["test_ids"] = test_ids
