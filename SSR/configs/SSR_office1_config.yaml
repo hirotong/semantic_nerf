@@ -1,8 +1,8 @@
 
 experiment:
-  scene_file: "~/dataset/Replica/room_0/habitat" # room_0,room_01, etc.
-  save_dir: "./logs"  # where to store ckpts and rendering
-  dataset_dir: "~/dataset/Replica_Dataset/room_0/Sequence_1"
+  scene_file: "~/dataset/Replica/office_1/habitat" # room_0,room_01, etc.
+  save_dir: "./logs/office_1"  # where to store ckpts and rendering
+  dataset_dir: "~/dataset/Replica_Dataset/office_1/Sequence_1"
   convention: "opencv"
   width: 320
   height: 240
@@ -21,7 +21,7 @@ model:
   netchunk: 1024*64  # number of pts sent through network in parallel, decrease if running out of memory
 
 render:
-    N_rays: 32*32*2  # average number of rays sampled from each sample within a batch
+    N_rays: 32*32*1  # average number of rays sampled from each sample within a batch
     N_samples: 64  # Number of different times to sample along each ray.
     N_importance: 128  # Number of additional fine samples per ray
     perturb: 1

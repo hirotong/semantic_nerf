@@ -69,6 +69,9 @@ def train():
     # Read YAML file
     with open(args.config_file, 'r') as f:
         config = yaml.safe_load(f)
+    for k, v in config['experiment'].items():
+        if isinstance(v, str) and v.startswith('~'):
+            config['experiment'][k] = os.path.expanduser(v)
     if len(args.gpu)>0:
         config["experiment"]["gpu"] = args.gpu
     print("Experiment GPU is {}.".format(config["experiment"]["gpu"]))

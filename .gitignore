@@ -27,6 +27,9 @@ SSR/results/
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
 
-*.json
+logs/
 
-SSR/configs/SSR_room0_config_test.yaml
+*.json
+*.out
+
+
