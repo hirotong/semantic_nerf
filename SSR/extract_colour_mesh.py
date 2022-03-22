@@ -121,7 +121,7 @@ def train():
     ssr_trainer.init_rays()
 
     # load_ckpt into NeRF
-    ckpt_path = os.path.join(save_dir, "checkpoints", "200000.ckpt")
+    ckpt_path = os.path.join(save_dir, "checkpoints", "020000.ckpt")
     print('Reloading from', ckpt_path)
     ckpt = torch.load(ckpt_path)
 
@@ -134,7 +134,7 @@ def train():
     ssr_trainer.ssr_net_fine.eval()
 
 
-    level = 0.45 # level = 0
+    level = 0.45 if config['experiment']['mode'] == "density" else 0 # level = 0
     threshold = 0.2
     draw_cameras = True
     grid_dim = args.grid_dim
@@ -177,12 +177,18 @@ def train():
         # notice we apply RELU to raw sigma before computing alpha
         return occ
 
-    # voxel_size = (ssr_trainer.far - ssr_trainer.near) / grid_dim # or self.N_importance
-    voxel_size = (ssr_trainer.far - ssr_trainer.near) / ssr_trainer.N_importance # or self.N_importance
-    occ = occupancy_activation(alpha, voxel_size)
-    print("Compute Occupancy Grids")
-    occ = occ.reshape(grid_dim, grid_dim, grid_dim)
-    occupancy_grid = occ.detach().cpu().numpy()
+    if config['experiment']['mode'] == 'density':
+        # voxel_size = (ssr_trainer.far - ssr_trainer.near) / grid_dim # or self.N_importance
+        voxel_size = (ssr_trainer.far - ssr_trainer.near) / ssr_trainer.N_importance # or self.N_importance
+        occ = occupancy_activation(alpha, voxel_size)
+        print("Compute Occupancy Grids")
+        occ = occ.reshape(grid_dim, grid_dim, grid_dim)
+        occupancy_grid = occ.detach().cpu().numpy()
+    else:
+        print("Using sdf mode")
+        sdf = alpha
+        sdf = sdf.reshape(grid_dim, grid_dim, grid_dim)
+        occupancy_grid = sdf.detach().cpu().numpy()
 
     print('fraction occupied:', (occupancy_grid > threshold).mean())
     print('Max Occ: {}, Min Occ: {}, Mean Occ: {}'.format(occupancy_grid.max(), occupancy_grid.min(), occupancy_grid.mean()))

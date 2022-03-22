@@ -125,7 +125,10 @@ class SSRTrainer(object):
         self.convention = self.config["experiment"]["convention"]
 
         self.endpoint_feat = self.config["experiment"]["endpoint_feat"] if "endpoint_feat" in self.config["experiment"].keys() else False
-
+        
+        self.mode = self.config["experiment"]["mode"]
+        
+        self.truncation = self.config["render"]["truncation"] if "truncation" in self.config["render"].keys() else None
         self.N_importance = self.config["render"]["N_importance"]
         self.raw_noise_std = self.config["render"]["raw_noise_std"]
         self.white_bkgd = self.config["render"]["white_bkgd"]

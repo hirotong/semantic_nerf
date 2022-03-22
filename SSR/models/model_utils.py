@@ -36,7 +36,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024 * 64
 
 
 
-def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, enable_semantic=True, 
+def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, mode='density',truncation=0.05, enable_semantic=True, 
                 num_sem_class=0, endpoint_feat=False):
     """Transforms model's predictions to semantically meaningful values.
     Args:
@@ -53,6 +53,20 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, enable_s
         depth_map: [num_rays]. Estimated distance to object.
     """
     raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
+    
+    def sdf2weights(sdf):
+        weights = torch.sigmoid(sdf / truncation) * torch.sigmoid(-sdf / truncation)
+        
+        signs = sdf[:, 1:] * sdf[:, :-1]
+        mask = torch.where(signs < 0.0, torch.ones_like(signs), torch.zeros_like(signs))
+        inds = torch.argmax(mask, dim=1)
+        inds = inds[..., None]
+        z_min = z_vals.gather(inds)
+        mask = torch.where(z_vals < z_min + truncation, torch.ones_like(z_vals), torch.zeros_like(z_vals))
+        
+        weights = weights * mask
+        
+        return weights / (torch.sum(weights, dim=-1, keepdim=True) + 1e-8)
 
     dists = z_vals[..., 1:] - z_vals[..., :-1]  # # (N_rays, N_samples_-1)
     dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[..., :1].shape).cuda()], -1)  # [N_rays, N_samples]
@@ -69,13 +83,16 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, enable_s
     else:
         noise = 0.
 
-    alpha = raw2alpha(raw[..., 3] + noise, dists)  # [N_rays, N_samples]
-
-
-    # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
-    weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)).cuda(), 1.-alpha + 1e-10], -1), -1)[:, :-1]
-    # [1, 1-a1, 1-a2, ...]
-    # [N_rays, N_samples+1] sliced by [:, :-1] to [N_rays, N_samples]
+    if 'density' == mode:
+        alpha = raw2alpha(raw[..., 3] + noise, dists)  # [N_rays, N_samples]
+        # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
+        weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)).cuda(), 1.-alpha + 1e-10], -1), -1)[:, :-1]
+        # [1, 1-a1, 1-a2, ...]
+        # [N_rays, N_samples+1] sliced by [:, :-1] to [N_rays, N_samples]
+    elif 'sdf' == mode:
+        weights = sdf2weights(raw[..., 3])
+    else:
+        raise NotImplementedError()
 
     rgb_map = torch.sum(weights[..., None] * rgb, -2)  # [N_rays, 3]
     # [N_rays, 3], the accumulated opacity along the rays, equals "1 - (1-a1)(1-a2)...(1-an)" mathematically
@@ -91,7 +108,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, enable_s
 
     if endpoint_feat:
         feat = raw[..., -128:] # [N_rays, N_samples, feat_dim] take the last 128 dim from predictions
-        feat_map = torch.sum(weights[..., None] * feat, -2)  # [N_rays, feat_dim]
+        feat_map = torch.sum(weights[..., None] * feat, -2)  # [N_rays, fea``t_dim]
     else:
         feat_map = torch.tensor(0)
 

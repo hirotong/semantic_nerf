@@ -1,12 +1,15 @@
 
 experiment:
   scene_file: "~/dataset/Replica/room_0/habitat" # room_0,room_01, etc.
-  save_dir: "./logs"  # where to store ckpts and rendering
+  save_dir: "./logs/room_0"  # where to store ckpts and rendering
   dataset_dir: "~/dataset/Replica_Dataset/room_0/Sequence_1"
   convention: "opencv"
   width: 320
   height: 240
   gpu: "0"
+
+  mode: "sdf"
+
   
   enable_semantic: True
   enable_depth: True
@@ -17,11 +20,11 @@ model:
   netwidth: 256
   netdepth_fine: 8
   netwidth_fine: 256
-  chunk: 1024*64  # number of rays processed in parallel, decrease if running out of memory
-  netchunk: 1024*64  # number of pts sent through network in parallel, decrease if running out of memory
+  chunk: 1024*32  # number of rays processed in parallel, decrease if running out of memory
+  netchunk: 1024*32  # number of pts sent through network in parallel, decrease if running out of memory
 
 render:
-    N_rays: 32*32*2  # average number of rays sampled from each sample within a batch
+    N_rays: 32*32*1  # average number of rays sampled from each sample within a batch
     N_samples: 64  # Number of different times to sample along each ray.
     N_importance: 128  # Number of additional fine samples per ray
     perturb: 1
@@ -34,6 +37,7 @@ render:
     no_batching: True  # True-sample random pixels from random images; False-sample from all random pixels from all images
     depth_range: [0.1, 10.0]
     white_bkgd: false  # set to render synthetic data on a white bkgd (always use for dvoxels)
+    truncation: 0.05
 
 train:
     lrate: 5e-4
@@ -47,5 +51,5 @@ logging: # logging/saving options
     step_log_print: 1  # 'frequency of console print'
     step_log_tfb: 500
     step_save_ckpt: 20000
-    step_val: 5000 # 5000 # frequency of rendering on unseen data
+    step_val: 5000 # frequency of rendering on unseen data
     step_vis_train: 20000 # 5000
