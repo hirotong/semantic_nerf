@@ -4,5 +4,4 @@
 module load open3d ffmpeg
 
 python train_SSR_main.py \
---config_file SSR/configs/SSR_office1_config.yaml \
---gpu 0
+--config_file SSR/configs/SSR_room0_wosem_config.yaml 

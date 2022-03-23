@@ -1,8 +1,8 @@
 #!/bin/bash -l
-#SBATCH --job-name=office_1
+#SBATCH --job-name=room0_wosem
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=4
 #SBATCH --mem=20gb
 #SBATCH --time=30:00:00 
 #SBATCH --gres=gpu:1    # Number of GPUs (per node)
@@ -18,8 +18,8 @@
  
 echo "number of cores is $SLURM_NTASKS"
 echo "job name is $SLURM_JOB_NAME"
-module load open3d
+module load open3d ffmpeg
 python train_SSR_main.py \
---config_file SSR/configs/SSR_office1_config.yaml \
+--config_file SSR/configs/SSR_room0_wosem_config.yaml \
 --gpu 0
 sleep 120

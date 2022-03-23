@@ -67,6 +67,9 @@ def train():
     # Read YAML file
     with open(config_file_path, 'r') as f:
         config = yaml.safe_load(f)
+    for k, v in config['experiment'].items():
+        if isinstance(v, str) and v.startswith('~'):
+            config['experiment'][k] = os.path.expanduser(v)
     if len(args.gpu)>0:
         config["experiment"]["gpu"] = args.gpu
     print("Experiment GPU is {}.".format(config["experiment"]["gpu"]))
@@ -81,9 +84,9 @@ def train():
 
 
     near_t = args.near_t
-    mesh_dir = args.mesh_dir
-    training_data_dir = args.training_data_dir
-    save_dir = args.save_dir
+    mesh_dir = os.path.expanduser(args.mesh_dir)
+    training_data_dir = os.path.expanduser(args.training_data_dir)
+    save_dir = os.path.expanduser(args.save_dir)
     mesh_recon_save_dir = os.path.join(save_dir, "mesh_reconstruction")
     os.makedirs(mesh_recon_save_dir, exist_ok=True)
 
@@ -121,7 +124,7 @@ def train():
     ssr_trainer.init_rays()
 
     # load_ckpt into NeRF
-    ckpt_path = os.path.join(save_dir, "checkpoints", "020000.ckpt")
+    ckpt_path = os.path.join(save_dir, "checkpoints", "060000.ckpt")
     print('Reloading from', ckpt_path)
     ckpt = torch.load(ckpt_path)
 

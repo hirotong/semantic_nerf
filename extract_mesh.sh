@@ -2,8 +2,9 @@
 # Author: hiro.tong
 
 python SSR/extract_colour_mesh.py \
---config_file SSR/configs/SSR_room0_config.yaml \
---mesh_dir /home/hiro/dataset/Replica/room_0 \
---save_dir ./logs/ \
---training_data_dir /home/hiro/dataset/Replica_Dataset/room_0/Sequence_1 \
---grid_dim 256 
+--config_file SSR/configs/SSR_office1_config.yaml \
+--mesh_dir ~/dataset/Replica/office_1 \
+--save_dir ./logs/office_1 \
+--training_data_dir ~/dataset/Replica_Dataset/office_1/Sequence_1 \
+--grid_dim 256 \
+--sem
