@@ -18,7 +18,7 @@ def parse_raw_data(output_path, data_filename):
   if not os.path.exists(output_path):
     os.makedirs(output_path)
   # load the data
-  sys.stdout.write('loading %s...' % data_filename)
+  sys.stdout.write(f'loading {data_filename}...')
   sd = SensorData(data_filename)
   sys.stdout.write('loaded!\n')
   if opt.export_depth_images:
@@ -54,7 +54,7 @@ with open("PATH_TO_SCANNET/ScanNet/tasks/scannetv2_val.txt") as f:
 for i in tqdm(range(len(val_seqs))):
   val_id = val_seqs[i]
   val_seq_dir = os.path.join(data_dir, val_id, "renders")
-  raw_data_filename = os.path.join(data_dir, val_id, val_id+".sens")
+  raw_data_filename = os.path.join(data_dir, val_id, f"{val_id}.sens")
   parse_raw_data(val_seq_dir, raw_data_filename)
 
 if __name__ == '__main__':

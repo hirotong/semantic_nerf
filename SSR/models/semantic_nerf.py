@@ -139,7 +139,7 @@ class Semantic_NeRF(nn.Module):
             for i, l in enumerate(self.views_linears):
                 h = self.views_linears[i](h)
                 h = F.relu(h)
-                
+
             if show_endpoint:
                 endpoint_feat = h
             rgb = self.rgb_linear(h)
