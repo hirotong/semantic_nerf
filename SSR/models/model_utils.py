@@ -12,8 +12,9 @@ def run_network_compund(inputs, fn, embed_fn, netchunk=1024 * 64):
     compund_fn = lambda x: fn(embed_fn(x))
 
     outputs_flat = batchify(compund_fn, netchunk)(inputs_flat)
-    outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
-    return outputs
+    return torch.reshape(
+        outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]]
+    )
 
 
 def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024 * 64):
@@ -31,8 +32,9 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024 * 64
         embedded = torch.cat([embedded, embedded_dirs], -1)
 
     outputs_flat = batchify(fn, netchunk)(embedded)
-    outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
-    return outputs
+    return torch.reshape(
+        outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]]
+    )
 
 
 

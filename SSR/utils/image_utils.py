@@ -96,7 +96,7 @@ def plot_semantic_legend(
             font_path=font_path,
             )
 
-    
+
     plt.figure(1)
     plt.title("Semantic Legend!")
     plt.imshow(legend)
@@ -131,7 +131,7 @@ def image_vis(
     gt_sem_row = np.concatenate(np.split(gt_data_dict["vis_sems"], batch_size, 0), axis=-2)[0]
     gt_sem_clean_row = np.concatenate(np.split(gt_data_dict["vis_sems_clean"], batch_size, 0), axis=-2)[0]
     gt_rgb_row = np.concatenate(np.split(gt_data_dict["rgbs"], batch_size, 0), axis=-2)[0]
-        
+
     pred_dep_row = np.concatenate(np.split(pred_data_dict["vis_deps"], batch_size, 0), axis=-2)[0]
     pred_raw_dep_row = np.concatenate(np.split(pred_data_dict["deps"], batch_size, 0), axis=-1)[0]
 
@@ -149,8 +149,7 @@ def image_vis(
             gt_dep_row, pred_dep_row, dep_diff_vis,
             gt_sem_clean_row, gt_sem_row, pred_sem_row, pred_entropy_row]
 
-    viz = np.vstack(views)
-    return viz
+    return np.vstack(views)
 
 
 

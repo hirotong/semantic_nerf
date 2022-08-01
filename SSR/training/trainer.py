@@ -28,7 +28,7 @@ def select_gpus(gpus):
     """
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     if gpus is not '':
-        logging.info("Using gpu's: {}".format(gpus))
+        logging.info(f"Using gpu's: {gpus}")
         os.environ["CUDA_VISIBLE_DEVICES"] = gpus
     else:
         logging.info('Using all available gpus')

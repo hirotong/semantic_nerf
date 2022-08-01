@@ -7,7 +7,7 @@ def draw_segment(t1, t2, color=(1., 1., 0.)):
 
     lines = [[0, 1]]
 
-    colors = [color for i in range(len(lines))]
+    colors = [color for _ in range(len(lines))]
     line_set = o3d.geometry.LineSet(
         points=o3d.utility.Vector3dVector(points),
         lines=o3d.utility.Vector2iVector(lines),
@@ -22,13 +22,13 @@ def draw_trajectory(scene, transform_wc, color=(1., 1., 0.), name="trajectory"):
         t1 = transform_wc[i, :3, 3]
         t2 = transform_wc[i+1, :3, 3]
         segment = draw_segment(t1, t2, color)
-        scene.scene.add_geometry("{}_{}".format(name, i), segment, material)
+        scene.scene.add_geometry(f"{name}_{i}", segment, material)
         scene.force_redraw()
 
 def draw_camera_frustrums(scene, material, intrinsics, transform_wc, scale=1.0, color=(1, 0, 0), name="camera"):
     for i in range(len(transform_wc)):
         camera_frustum = gen_camera_frustrum(intrinsics, transform_wc[i])
-        scene.scene.add_geometry("{}_{}".format(name, i), camera_frustum, material)
+        scene.scene.add_geometry(f"{name}_{i}", camera_frustum, material)
         scene.force_redraw()
 
 
@@ -52,7 +52,7 @@ def gen_camera_frustrum(intrinsics, transform_wc, scale=1.0, color=(1, 0, 0)):
             xh, yh, scale,  # 3 - bottom right
             xl, yh, scale,  # 4 - bottom leff
             ]
-    
+
     lines = [
     [0, 1],
     [0, 2],
@@ -64,7 +64,7 @@ def gen_camera_frustrum(intrinsics, transform_wc, scale=1.0, color=(1, 0, 0)):
     [3, 4],
     ]
 
-    colors = [color for i in range(len(lines))]
+    colors = [color for _ in range(len(lines))]
     line_set = o3d.geometry.LineSet(
         points=o3d.utility.Vector3dVector(points),
         lines=o3d.utility.Vector2iVector(lines),
@@ -77,7 +77,7 @@ def gen_camera_frustrum(intrinsics, transform_wc, scale=1.0, color=(1, 0, 0)):
 
 
 def integrate_rgbd_tsdf(tsdf_volume, rgb, dep, depth_trunc, T_wc, intrinsic):
-    for i in range(0, len(T_wc)):
+    for i in range(len(T_wc)):
         print("Integrate {:d}-th image into the volume.".format(i))
         color = o3d.geometry.Image(rgb[i])
         depth = o3d.geometry.Image(dep[i])
@@ -107,10 +107,10 @@ def tsdf2mesh(tsdf):
 
 def integrate_dep_pcd(dep, T_wc, intrinsic):
     # http://www.open3d.org/docs/latest/tutorial/Advanced/multiway_registration.html#Make-a-combined-point-cloud
-    
+
     pcd_list = []
     pcd_combined = o3d.geometry.PointCloud()
-    for i in range(0, len(T_wc)):
+    for i in range(len(T_wc)):
         depth = o3d.geometry.Image(dep[i])
         pcd = o3d.geometry.PointCloud.create_from_depth_image(
             depth_map,

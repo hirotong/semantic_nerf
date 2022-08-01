@@ -12,12 +12,17 @@ def batchify_rays(render_fn, rays_flat, chunk=1024 * 32):
             if k not in all_ret:
                 all_ret[k] = []
             all_ret[k].append(ret[k])
-    
+
     # save gpu memory
-    if not all_ret['rgb_coarse'][0].requires_grad:
-        all_ret = {k: torch.cat(list(map(lambda x: x.detach().cpu(), all_ret[k])), 0) for k in all_ret}
-    else:
-        all_ret = {k: torch.cat(all_ret[k], 0) for k in all_ret}
+    all_ret = (
+        {k: torch.cat(all_ret[k], 0) for k in all_ret}
+        if all_ret['rgb_coarse'][0].requires_grad
+        else {
+            k: torch.cat(list(map(lambda x: x.detach().cpu(), all_ret[k])), 0)
+            for k in all_ret
+        }
+    )
+
     return all_ret
 
 
@@ -49,8 +54,7 @@ def lr_poly_decay(base_lr, iter, max_iter, power):
 def lr_exp_decay(base_lr, exp_base_lr, current_step, decay_steps):
     """ lr = lr0 * decay_base^(−kt)
     """
-    new_lrate = base_lr * (exp_base_lr ** (current_step / decay_steps))
-    return new_lrate
+    return base_lr * (exp_base_lr ** (current_step / decay_steps))
 
 
 def nanmean(data, **args):
@@ -68,7 +72,7 @@ def calculate_segmentation_metrics(true_labels, predicted_labels, number_classes
     valid_pix_ids = true_labels!=ignore_label
     predicted_labels = predicted_labels[valid_pix_ids] 
     true_labels = true_labels[valid_pix_ids]
-    
+
     conf_mat = confusion_matrix(true_labels, predicted_labels, labels=list(range(number_classes)))
     norm_conf_mat = np.transpose(
         np.transpose(conf_mat) / conf_mat.astype(np.float).sum(axis=1))
@@ -112,8 +116,7 @@ def calculate_depth_metrics(depth_trgt, depth_pred):
     r2 = (thresh < 1.25**2).astype('float')
     r3 = (thresh < 1.25**3).astype('float')
 
-    metrics = {}
-    metrics['AbsRel'] = np.mean(abs_rel)
+    metrics = {'AbsRel': np.mean(abs_rel)}
     metrics['AbsDiff'] = np.mean(abs_diff)
     metrics['SqRel'] = np.mean(sq_rel)
     metrics['RMSE'] = np.sqrt(np.mean(sq_diff))

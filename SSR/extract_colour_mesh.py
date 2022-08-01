@@ -36,7 +36,14 @@ def render_fn(trainer, rays, chunk):
             trainer.render_rays(rays[i:i+chunk])
 
         for k, v in rendered_ray_chunks.items():
-            if not k in ['raw_fine', 'raw_coarse', 'acc_coarse', 'acc_fine', 'depth_coarse', 'depth_fine']:
+            if k not in [
+                'raw_fine',
+                'raw_coarse',
+                'acc_coarse',
+                'acc_fine',
+                'depth_coarse',
+                'depth_fine',
+            ]:
                 results[k] += [v.detach().cpu()]
 
     for k, v in results.items():

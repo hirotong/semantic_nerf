@@ -145,9 +145,7 @@ def stratified_bins(min_depth,
     lower_limits = bin_limits[:-1]
     bin_length = (max_depth - min_depth) / (n_bins)
     increments = torch.rand(n_rays, n_bins, device=device) * bin_length
-    z_vals = lower_limits[None, :] + increments
-
-    return z_vals
+    return lower_limits[None, :] + increments
 
 
 def sampling_index(n_rays, batch_size, h, w):
@@ -202,9 +200,7 @@ def sample_pdf(bins, weights, N_samples, det=False):
     # anyway, therefore any value for it is fine (set to 1 here)
 
     t = (u-cdf_g[..., 0])/denom
-    samples = bins_g[..., 0] + t * (bins_g[...,1]-bins_g[...,0])
-
-    return samples
+    return bins_g[..., 0] + t * (bins_g[...,1]-bins_g[...,0])
 
 
 def create_rays(num_rays, Ts_c2w, height, width, fx, fy, cx, cy, near, far, c2w_staticcam=None, depth_type="z",
